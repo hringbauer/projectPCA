@@ -27,4 +27,4 @@ classifiers = ["Programming Language :: Python :: 3",
 namespaces = false
 
 [tool.setuptools.package-data]
-mypkg = ["*.tsv"]
+projectPCA = ["**/*.tsv"]

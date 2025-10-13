@@ -4,12 +4,8 @@
 
 import numpy as np
 import pandas as pd
-import os as os
-import matplotlib.pyplot as plt
 
 from projectPCA.eigenstrat_funcs import load_genos_autoeager, update_values
-from projectPCA.loadEigenstrat import get_eigenstrat_object
-
 
 ##############
 ### Functions Harald PCA
