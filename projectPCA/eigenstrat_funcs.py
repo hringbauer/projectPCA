@@ -123,13 +123,12 @@ def update_values(gt, x=[48,49,50,57], y=[2,1,0,9], copy=False):
     x: List of original values.
     y: Updated values"""
     if copy:
-        gt2 = gt.copy() # hard copy, necessary if values intersect
+        gt2 = gt.astype("float") # hard copy, necessary if values intersect
 
     else:
         gt2 = gt # only pointer
         
     for i,j in zip(x,y):
-    #print(x,y)
         idx = gt == i
         gt2[idx] = j
     return gt2

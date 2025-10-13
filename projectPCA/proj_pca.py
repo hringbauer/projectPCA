@@ -1,14 +1,15 @@
-# Project PCA
-### Functions from EPIDEMIC projection notebookd onto Joscha's PCA. 
-### Should work for 1240k as well. 
+# Functions to project new samples onto PCS
+# Contains core projection and also wrappers for various data types
 ### Harald, Sep 2025
 
 import numpy as np
 import pandas as pd
 import os as os
+import matplotlib.pyplot as plt
 
 from projectPCA.eigenstrat_funcs import load_genos_autoeager, update_values
-from hapsburg.PackagesSupport.loadEigenstrat.loadEigenstrat import load_eigenstrat
+from projectPCA.loadEigenstrat import get_eigenstrat_object
+
 
 ##############
 ### Functions Harald PCA
@@ -80,7 +81,7 @@ def get_pcs_proj(iids=[], code="SG", strand="single",
     If less than that, return NAN.
     g: If given use this as Genotype Matrix"""
     ### Load Genotypes
-    g = load_genos_autoeager(iids=iids,code=code, strand=strand).astype("float") 
+    g = load_genos_autoeager(iids=iids,code=code, strand=strand)
 
     ### Filter to IIDs with genotype entries
     idx_missing = np.isnan(g).all(axis=1)
@@ -153,25 +154,13 @@ def set_color_pca(df, c="red", c_low="yellow", snp_low=1e5):
 
 def get_gts_from_geno(path_geno="/mnt/archgen/users/xiaowen/public_data/HO/HO_WEA_4yilei.geno", num_snps=597573):
     gts = load_unpacked_eigenstrat(path_geno, num_snps=num_snps)
-    gts = gts.astype("float16")
-    gts = update_values(gts, x=[48, 49, 50, 57], y=[2, 1, 0, np.nan])
+    #gts = gts.astype("float16")
+    #gts = update_values(gts, x=[48, 49, 50, 57], y=[2, 1, 0, np.nan])
     return gts
 
 
-###############################################
-### Project general eigenstrat (e.g., AADR)
 
-def proj_iids_ESobj(iids=[], es=None, dfw=[], df_snp=[], min_snps=10000, maf=0.05):
-    """Get PCA dataframe starting from ES Object as input.
-    es: hapROH eigenstrat object. created via load_eigenstrat factory function."""
 
-    ### Load genotype data
-    gt = np.array([es.get_geno_indvidiaul_iid(iid) for iid in iids], dtype="float")
-    gt = update_values(gt, x=[0, 1, 2, 3], y=[2, 1, 0, np.nan], copy=True) # use COPY as values overlap
-    
-    ### Run Projection
-    df_pc = get_pcs_proj_gts(g=gt, dfw=dfw, df_snp=df_snp, min_snps=min_snps, maf=maf)
-    df_pc["iid"] = iids
-    return df_pc
+
 
     
