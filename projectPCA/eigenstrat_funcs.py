@@ -3,9 +3,7 @@
 
 import numpy as np
 import pandas as pd
-import itertools as it
 import os
-import warnings
 
 def pw_mm_rate(g1, g2, val_missing=57):
     """ Calculate Pairwise Mismatch Rate between two samples.
@@ -26,7 +24,7 @@ def get_geno_iid(dfj, gt, iid=""):
     idx = dfj["Poseidon_ID"] == iid
     idcs = np.where(idx)[0]
     if len(idcs)==0:
-        warnings.warn(f"IID: {iid} not found.", RuntimeError)
+        raise RuntimeWarning(f"IID: {iid} not found.")
         return []
     assert(len(idcs)==1)
     return gt[idcs[0],:]
@@ -67,7 +65,7 @@ def load_geno_autoeager(iid="", code="SG", strand="single", num_snps=1233013):
     if os.path.exists(path_geno):
         g = load_unpacked_eigenstrat(path_geno, num_snps=num_snps) # load the geno matrix
     else:
-        warnings.warn(f"Geno File not found for {iid}: \n{path_geno}", RuntimeWarning)
+        raise RuntimeWarning(f"Geno File not found for {iid}: \n{path_geno}", RuntimeWarning)
         g=[]
     return g
 
@@ -87,36 +85,7 @@ def load_genos_autoeager(iids=[],  code="SG", strand="single", num_snps=1233013)
             gs[i] = g
             
     return gs
-
-def pw_mm_rates_iids(gts=[], iids=[], val_missing=57):
-    """Calculate all possible pw. mismatch rates for list of iids
-    gt: Genotype Matrix [#IIDs x #SNPs]
-    dfj: Janno Dataframe
-    val_missing: Value of Missing data"""
-
-    n= len(iids)
-    res = []
     
-    for i,j in it.combinations(range(n),2):
-        iid1, iid2 = iids[i], iids[j]
-        pmr, mms, snps = pw_mm_rate(gts[i], gts[j])
-        res.append([iid1, iid2, pmr, mms, snps])
-    
-    # Create Dataframe with results
-    df = pd.DataFrame(res, columns=["iid1", "iid2", "pmr", "mms", "snps"])
-    return df
-
-def calc_r(df_pmr, base_pmr=0):
-    """Calculate Relatedness Coefficient from df_pmr.
-    Add column to df_pmr"""
-    pmr = df_pmr["pmr"]
-    
-    if base_pmr == 0:
-        base_pmr = np.median(pmr)
-    print(f"Base PMR: {base_pmr:.4f}")
-
-    r = 2 * (pmr - base_pmr)/ base_pmr
-    df_pmr["r"] = r
 
 def update_values(gt, x=[48,49,50,57], y=[2,1,0,9], copy=False):
     """"Update Values in numpy matrix gt. 

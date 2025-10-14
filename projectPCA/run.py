@@ -5,31 +5,35 @@
 import numpy as np
 import pandas as pd
 import os as os
-import matplotlib.pyplot as plt
 
 ### Imports from Package
 from projectPCA.get_proj_files import get_projection_files # Load pre-comp data
 from projectPCA.loadEigenstrat import get_eigenstrat_object # Load eigenstrat
-from projectPCA.proj_pca import get_pcs_proj_gts # calculte new PCA projection
+from projectPCA.proj_pca import get_pcs_proj_gts # Calculte new PCA projection
+from projectPCA.plot_pca import plot_df_pc, plot_df_pc_plotly # Plotting functions
 
 
 def project_eigenstrat(es_path="", pca="HO", savepath="", fig_path="",
                        df_snp=[], df_ind=[], iids=[], dfw=[], df_bgrd_pcs=[],
-                      plot=True, es_type="standard", min_snps=10000):
+                       plot=["pc1", "pc2"], es_type="standard", min_snps=10000):
     """Load and project eigenstrat file. Plot, save, and return PC projection dataframe
     Main input:
-    es_path: Path to the target eigenstrat (up to .geno, .ind and .snp)
-    pca: Which PC to project on
-    savepath: Where to save the output table of PC coordinates. If empty, do not save.
-    fig_path: Where to save the figure of the PC projection. If empty, not plot saved.
+    es_path: Path to the target eigenstrat (up to .geno, .ind and .snp suffix)
+    pca: Which PC to project on. One of HO / EU
     es_type: Which eigenstrat type to load. One of default/eager/autoeager
     
     Optional input to overwrite default loading:
-    df_snp: SNP dataframe with snp column, PCA weights and allele frequency (p)
-    df_ind: Indivdiual dataframe
+    df_snp: SNP dataframe with snp column, PCA weights, and allele frequency (p)
+    df_ind: Individual dataframe
     iids: Use only these iids to project
     dfw: SNP weights from PCA
     df_bgrd_pcs: Background PCs to plot
+
+    Optional output parameters:
+    plot: List of length 2: In which order pc1 and pc2 are plotted. If empty, no plot.
+    plot_flip_pcs: Whether to flip PC1 and PC2
+    fig_path: Where to save the figure of the PC projection. If empty, not plot saved.
+    savepath: Where to save the output table of PC coordinates. If empty, do not save.
     """
     
     pf = get_projection_files(pca) # Load the pre-computed PC Object
@@ -42,13 +46,14 @@ def project_eigenstrat(es_path="", pca="HO", savepath="", fig_path="",
 
     df_pc = project_es_obj(es=es, dfw=dfw, df_bgrd_pcs=df_bgrd_pcs,
                            df_snp=df_snp, df_ind=df_ind, iids=iids,
-                           savepath=savepath, fig_path=fig_path, plot=plot, min_snps=min_snps)
+                           savepath=savepath, fig_path=fig_path, 
+                           plot=plot, min_snps=min_snps)
     return df_pc
 
 
 def project_es_obj(es=None, dfw=[], df_bgrd_pcs=[],
                    df_snp=[], df_ind=[], iids=[],
-                   savepath="", fig_path="", plot=True, min_snps=10000):
+                   plot=["pc1", "pc2"], savepath="", fig_path="", min_snps=10000):
     """Load and project eigenstrat file. Plot, save, and return PC projection dataframe
     es_path: Path to the target eigenstrat (up to .geno, .ind and .snp)
     dfw: Weight file to use
@@ -71,39 +76,15 @@ def project_es_obj(es=None, dfw=[], df_bgrd_pcs=[],
     if len(savepath)>0:
         df_pc.to_csv(savepath, index=False, sep="\t")
     
-    if plot:
-        plot_df_pc(df_pcs=df_pc, df_bgrd_pcs=df_bgrd_pcs, savepath=fig_path)
+    if len(plot)==2: 
+
+        if fig_path.endswith(".html"): # # Use Plotly function if html
+            plot_df_pc_plotly(df_pcs=df_pc, df_bgrd_pcs=df_bgrd_pcs, 
+                   plot_cols=plot, savepath=fig_path)
+        else:
+            plot_df_pc(df_pcs=df_pc, df_bgrd_pcs=df_bgrd_pcs, 
+                       plot_cols=plot, savepath=fig_path)
     return df_pc
-
-
-def plot_df_pc(df_pcs=[], df_bgrd_pcs=[], 
-               figsize=(6,6), s=30, lw=0.7, 
-               savepath="", plot=True):
-    """Plot a simple PCA:
-    df_pcs: Value of the PCA to plot
-    df_bgrd_pcs: Pandas dataframe with columns pc1 and pc2.
-    Usually pre-computed. If given, plot the values of this background."""
-
-    plt.figure(figsize=figsize)
-    ax=plt.gca()
-
-    if len(df_bgrd_pcs)>0:
-        ax.scatter(df_bgrd_pcs["pc1"], df_bgrd_pcs["pc2"], c="silver", s=15, alpha=0.5)
-    
-    for _, row in df_pcs.iterrows():
-        ax.scatter(row["pc1"], row["pc2"], lw=lw, 
-                   s=s, edgecolor="k", label = row["iid"])
-    
-    ### Formatting Plot
-    ax.set_xlabel("PC1")
-    ax.set_ylabel("PC2")
-    ax.legend(loc="upper right")
-    
-    if len(savepath)>0:
-        plt.savefig(savepath, bbox_inches ='tight', pad_inches = 0, dpi=600)
-
-    if plot:
-        plt.show()
 
 
 ###############################################

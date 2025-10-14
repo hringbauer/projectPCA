@@ -4,9 +4,9 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "projectPCA"
-version = "0.1a1"
+version = "0.2a1"
 requires-python = ">= 3.6"
-dependencies = ['numpy', 'pandas', 'hapROH']
+dependencies = ['numpy', 'pandas', 'matplotlib']
 description = "Project (ancient) human genomes onto pre-computed standard PCA"
 authors = [
   {name = "Harald Ringbauer", email = "harald_ringbauer@eva.mpg.de"},

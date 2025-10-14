@@ -18,7 +18,7 @@ def get_gts_norm(gts, p, maf=0.05):
 
     ### Remove Fixed Values
     idx = np.isclose(p,1, atol=maf) | np.isclose(p,0, atol=maf)
-    print(f"Filtering {np.sum(idx)}/{len(idx)} fixed SNPs.")
+    print(f"Filtering {np.sum(idx)} / {len(idx)} SNPs with MAF<{maf}.")
     p1 = p[~idx]
     gts1 = gts[:,~idx]
 
@@ -75,7 +75,7 @@ def get_pcs_proj(iids=[], code="SG", strand="single",
     """Get PC Projection of IIDs.
     min_snps: Minimum Number of covered SNPs to be projected.
     If less than that, return NAN.
-    g: If given use this as Genotype Matrix"""
+    g: If given, use this as Genotype Matrix"""
     ### Load Genotypes
     g = load_genos_autoeager(iids=iids,code=code, strand=strand)
 
@@ -102,7 +102,7 @@ def get_pcs_proj_gts(g=[], dfw=[], df_snp=[], min_snps=10000, maf=0.05,
     If less than that, return NAN.
     g: Genotype Matrix (n iids x k SNPs) of entries 0/1/2
     df_snp: SNP dataframe matching gts (snp file to genotype file)
-    Flip: Whether to check for flipped alleles and actually flipping them"""
+    flip: Whether to check for flipped alleles and flipping them"""
     ### Load Genotypes
     assert(np.shape(g)[1] == len(df_snp)) # Sanity Check whether geno file matches snp file
 
@@ -110,9 +110,12 @@ def get_pcs_proj_gts(g=[], dfw=[], df_snp=[], min_snps=10000, maf=0.05,
     dfw1240 = pd.merge(df_snp[[rs_id_col, "ref", "alt"]], dfw, 
                        left_on=rs_id_col, right_on=["snp"], how="left")
     
-    idx = ~dfw1240["w1"].isnull() # SNPs with weight
+    idx = ~dfw1240["w1"].isnull() # SNPs with weight, e.g. in the weight file
     dfw1 = dfw1240[idx]
     g1= g[:,idx]
+
+    if len(dfw1)==0:
+        raise RuntimeWarning("No intersecting SNPs with projection weights. Please check snp column of input .snp file.")
 
     ### Flip (and and filter to matching only):
     if flip:

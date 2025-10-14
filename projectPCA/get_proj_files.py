@@ -36,14 +36,29 @@ class Projection_Files_HO(Projection_Files):
         path_ho_pcs = impresources.files(data) / "we_v1" / "20250422.ho_projections.tsv"
         self.df_bgrd_pcs = pd.read_csv(path_ho_pcs, sep="\t")
 
+class Projection_Files_EU(Projection_Files):
+    """Based on Joscha's PCA"""
+    
+    def __init__(self):
+        path_wts = impresources.files(data) / "joscha_v1" / "joscha.weights_p.tsv"
+        self.dfw = pd.read_csv(path_wts, sep="\t")
+
+        path_ho_pcs = impresources.files(data) / "joscha_v1" / "joscha.ho_proj.maf05.tsv"
+        self.df_bgrd_pcs = pd.read_csv(path_ho_pcs, sep="\t")
+
          
 def get_projection_files(mode="HO"):
     """Factory Function to return the right Projection_Files object. Currently implemented:
-    HO: Human origin projection
+    HO: Human origin West Eurasia projection
+    EU: Based on Joscha's  Fine-Scale EU PCA 
+    (see Gretzinger et al 2022, https://doi.org/10.1038/s41586-022-05247-2)
     """
 
     if mode=="HO":
         return Projection_Files_HO()
 
+    elif mode=="EU":
+        return Projection_Files_EU()
+
     else:
-        raise RuntimeWarning(f"Mode: `{mode}` is not implemented. Please provide one of `HO`/...")
+        raise RuntimeWarning(f"Mode: `{mode}` is not implemented. Please provide one of HO/ EU.")

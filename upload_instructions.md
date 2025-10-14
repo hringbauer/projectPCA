@@ -1,9 +1,7 @@
 # Instructions on how to upload a package to PYPI
 This file is based on update and upload instructions from `https://packaging.python.org/tutorials/packaging-projects/`
 Harald keeps this file as notes and a reminder.
-The installation is based on a pyproject.toml setup. It is a pure Python project without extensions.
-
-I distribute the source - and no wheels (for now).
+The installation is based on a pyproject.toml setup. It is a pure Python project without extensions. I distribute both source and any-wheel.
 
 ## 1) Load Python environment and navigate to folder
 - On Leipzig HPC Cluster (primary source to create package since 2025):
@@ -31,10 +29,6 @@ rm ./dist/*
 
 ### Build package 
 python3 -m build
-
-[Alternative} Only source, no wheel)
-python3 -m build --sdist
-
 
 ### Upload to PyPi
 ### For full PyPi server
