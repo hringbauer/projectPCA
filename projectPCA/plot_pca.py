@@ -10,7 +10,8 @@ except:
     go = False
 
 def plot_df_pc(df_pcs=[], df_bgrd_pcs=[], plot_cols=["pc1", "pc2"],
-               figsize=(6,6), s=30, lw=0.5, leg_loc="upper right",
+               figsize=(6,6), plot_bgrd_c=False, 
+               s=30, lw=0.5, leg_loc="center left", font_size_leg=8,
                savepath="", show=True):
     """Plot a simple PCA:
     df_pcs: Value of the PCA to plot
@@ -24,7 +25,13 @@ def plot_df_pc(df_pcs=[], df_bgrd_pcs=[], plot_cols=["pc1", "pc2"],
     ax=plt.gca()
 
     if len(df_bgrd_pcs)>0:
-        ax.scatter(df_bgrd_pcs[col1], df_bgrd_pcs[col2], c="silver", s=15, alpha=0.5)
+        if plot_bgrd_c:
+            pops = set(df_bgrd_pcs["pop"])
+            for p in pops:
+                dft = df_bgrd_pcs[df_bgrd_pcs["pop"]==p]
+                ax.scatter(dft[col1], dft[col2], c=dft["c"], s=15, alpha=0.5, label=p)
+        else:
+            ax.scatter(df_bgrd_pcs[col1], df_bgrd_pcs[col2], c="silver", s=15, alpha=0.5)
     
     for _, row in df_pcs.iterrows():
         ax.scatter(row[col1], row[col2], lw=lw, 
@@ -33,7 +40,8 @@ def plot_df_pc(df_pcs=[], df_bgrd_pcs=[], plot_cols=["pc1", "pc2"],
     ### Formatting Plot
     ax.set_xlabel(col1)
     ax.set_ylabel(col2)
-    ax.legend(loc=leg_loc)
+    ax.legend(loc=leg_loc, bbox_to_anchor=(1.04, 0.5), fontsize=font_size_leg,
+              borderaxespad=0)
 
     ### Save Figure
     if len(savepath)>0:
@@ -47,8 +55,9 @@ def plot_df_pc(df_pcs=[], df_bgrd_pcs=[], plot_cols=["pc1", "pc2"],
 
 def plot_df_pc_plotly(
     df_pcs, df_bgrd_pcs=None, plot_cols=("pc1", "pc2"),
-    s=8, lw=0.5, leg_loc="top right",
+    s=8, lw=0.5, leg_loc="top right", plot_bgrd_c=False,
     savepath="", show=True, title="PCA Plot (Interactive)"):
+    """plot_bgrd_c not implemented yet!"""
 
     if not go:
         print("You need to install Plotly to plot .html. Aborting figure...")

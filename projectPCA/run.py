@@ -13,9 +13,9 @@ from projectPCA.proj_pca import get_pcs_proj_gts # Calculte new PCA projection
 from projectPCA.plot_pca import plot_df_pc, plot_df_pc_plotly # Plotting functions
 
 
-def project_eigenstrat(es_path="", pca="HO", savepath="", fig_path="",
+def project_eigenstrat(es_path="", pca="HO", es_type="standard", savepath="", fig_path="",
                        df_snp=[], df_ind=[], iids=[], dfw=[], df_bgrd_pcs=[],
-                       plot=["pc1", "pc2"], es_type="standard", min_snps=10000):
+                       plot=["pc1", "pc2"], plot_bgrd_c=False, maf=0.05, min_snps=10000):
     """Load and project eigenstrat file. Plot, save, and return PC projection dataframe
     Main input:
     es_path: Path to the target eigenstrat (up to .geno, .ind and .snp suffix)
@@ -29,10 +29,15 @@ def project_eigenstrat(es_path="", pca="HO", savepath="", fig_path="",
     dfw: SNP weights from PCA
     df_bgrd_pcs: Background PCs to plot
 
+    Optional parameters overwriting default settings 
+    [warning, break default projection comparison!]
+    maf: Minor allele frequency cutoff [float]
+
     Optional output parameters:
     plot: List of length 2: In which order pc1 and pc2 are plotted. If empty, no plot.
     plot_flip_pcs: Whether to flip PC1 and PC2
     fig_path: Where to save the figure of the PC projection. If empty, not plot saved.
+    plot_bgrd_c: Whether to plot background in stored colors.
     savepath: Where to save the output table of PC coordinates. If empty, do not save.
     """
     
@@ -47,13 +52,16 @@ def project_eigenstrat(es_path="", pca="HO", savepath="", fig_path="",
     df_pc = project_es_obj(es=es, dfw=dfw, df_bgrd_pcs=df_bgrd_pcs,
                            df_snp=df_snp, df_ind=df_ind, iids=iids,
                            savepath=savepath, fig_path=fig_path, 
-                           plot=plot, min_snps=min_snps)
+                           plot=plot, plot_bgrd_c=plot_bgrd_c,
+                           maf=maf, min_snps=min_snps)
     return df_pc
 
 
 def project_es_obj(es=None, dfw=[], df_bgrd_pcs=[],
                    df_snp=[], df_ind=[], iids=[],
-                   plot=["pc1", "pc2"], savepath="", fig_path="", min_snps=10000):
+                   plot=["pc1", "pc2"], plot_bgrd_c=False,
+                   savepath="", fig_path="", 
+                   maf=0.05, min_snps=10000):
     """Load and project eigenstrat file. Plot, save, and return PC projection dataframe
     es_path: Path to the target eigenstrat (up to .geno, .ind and .snp)
     dfw: Weight file to use
@@ -62,7 +70,8 @@ def project_es_obj(es=None, dfw=[], df_bgrd_pcs=[],
     df_snp: Optional, use this as SNP df
     df_ind: Optional, use this as iid df
     iids: Optional, if given, use these iids to project
-    df_bgrd_pcs: Which background PCs to plot"""
+    df_bgrd_pcs: Which background PCs to plot
+    maf: Minor Allele Frequency Cutoff."""
 
     if len(df_ind)==0:
         df_ind = es.load_ind_df()
@@ -71,7 +80,8 @@ def project_es_obj(es=None, dfw=[], df_bgrd_pcs=[],
     if len(iids)==0:
         iids = df_ind["iid"][:].values
         
-    df_pc = proj_iids_ESobj(iids=iids, es=es, dfw=dfw, df_snp=df_snp, min_snps=min_snps)
+    df_pc = proj_iids_ESobj(iids=iids, es=es, dfw=dfw, df_snp=df_snp, 
+                            maf=maf, min_snps=min_snps)
 
     if len(savepath)>0:
         df_pc.to_csv(savepath, index=False, sep="\t")
@@ -83,7 +93,7 @@ def project_es_obj(es=None, dfw=[], df_bgrd_pcs=[],
                    plot_cols=plot, savepath=fig_path)
         else:
             plot_df_pc(df_pcs=df_pc, df_bgrd_pcs=df_bgrd_pcs, 
-                       plot_cols=plot, savepath=fig_path)
+                       plot_cols=plot, plot_bgrd_c=plot_bgrd_c, savepath=fig_path)
     return df_pc
 
 

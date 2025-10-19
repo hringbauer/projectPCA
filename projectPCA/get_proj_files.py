@@ -43,7 +43,7 @@ class Projection_Files_EU(Projection_Files):
         path_wts = impresources.files(data) / "joscha_v1" / "joscha.weights_p.tsv"
         self.dfw = pd.read_csv(path_wts, sep="\t")
 
-        path_ho_pcs = impresources.files(data) / "joscha_v1" / "joscha.ho_proj.maf05.tsv"
+        path_ho_pcs = impresources.files(data) / "joscha_v1" / "joscha.ho_proj.euro_c.maf05.tsv"
         self.df_bgrd_pcs = pd.read_csv(path_ho_pcs, sep="\t")
 
          
