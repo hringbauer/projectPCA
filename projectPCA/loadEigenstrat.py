@@ -134,7 +134,7 @@ class EigenstratLoad(object):
         # Detect the Individual
         found = np.where(self.df_ind["iid"] == iid)[0]
         if len(found)==0:
-            raise RuntimeError(f"Individual {iid} not found!")
+            raise RuntimeError(f"Individual {iid} not found in Eigenstrat!")
         else: 
             i = found[0]
         return i
@@ -235,8 +235,8 @@ class EigenstratEager(EigenstratLoad):
         return g
 
     def get_geno_all(self, missing_val=3):
-        """Load all genotypes from Eigenstrat File.
-        Use self.nind for number of individuals.
+        """Load all genotypes from the Eigenstrat File.
+        Use self.nind for the number of individuals.
         Return genotype matrix, with missing values set to missing_val"""
         gt = self.load_eager_geno()  # Load the whole bit file
         gt = update_values(gt, x=[48,49,50,57], y=[2,1,0,np.nan], copy=True) # use COPY as values overlap
@@ -269,6 +269,19 @@ class EigenstratEager(EigenstratLoad):
         # Detect the Individual
         return 0
 
+class EigenstratLoadUnpackedFast(EigenstratLoadUnpacked):
+    """Fast Class to load unpacked Eigenstrat File"""
+
+    def get_geno_i(self, i, missing_val=np.nan):
+        """Load Genotype for Individual (Row) i,
+        assuming it's encoded in unpacked Format."""
+        raw = np.fromfile(self.base_path + ".geno", dtype=np.uint8)
+        raw = raw[raw != 10]   # remove '\n'
+        
+        geno = raw.reshape(self.nsnp, self.nind) # Put into Matrix
+        geno = geno[:, i].astype('float') ### Extract Relevant column
+        geno = update_values(geno, x=[48,49,50,57], y=[2,1,0,missing_val], copy=False) 
+        return geno
 
 #########################################################
 #########################################################
@@ -332,8 +345,11 @@ def get_eigenstrat_object(base_path, sep=r"\s+", packed=-1, mode="default", verb
 
     elif mode=="autoeager":
             es = EigenstratEager(base_path, output=verbose, sep=sep, nind=1, nsnp=1233013)
+        
+    elif mode=="unpacked_fast":
+            es = EigenstratLoadUnpackedFast(base_path, output=verbose, sep=sep)
 
     else:
-        raise RuntimeError(f"Mode: {mode} not found. \nPlease use one of standard/eager/autoeager")
+        raise RuntimeError(f"Mode: {mode} not found. \nPlease use one of standard/eager/autoeager/unpacked_fast")
         
     return es
