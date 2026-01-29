@@ -72,7 +72,7 @@ def get_least_square_2d(dfw,  gts, w1="w1", w2="w2", maf=0.05):
 
 def get_pcs_proj(iids=[], code="SG", strand="single",
                  dfw=[], df_snp=[], min_snps=10000, maf=0.05):
-    """Get PC Projection of IIDs.
+    """Get PC Projection of IIDs. Specific to Auto Eager iids!
     min_snps: Minimum Number of covered SNPs to be projected.
     If less than that, return NAN.
     g: If given, use this as Genotype Matrix"""

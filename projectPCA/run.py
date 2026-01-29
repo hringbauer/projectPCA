@@ -9,7 +9,7 @@ import os as os
 ### Imports from Package
 from projectPCA.get_proj_files import get_projection_files # Load pre-comp data
 from projectPCA.loadEigenstrat import get_eigenstrat_object # Load eigenstrat
-from projectPCA.proj_pca import get_pcs_proj_gts # Calculte new PCA projection
+from projectPCA.proj_pca import get_pcs_proj_gts, get_pcs_proj # Calculate new PCA projection
 from projectPCA.plot_pca import plot_df_pc, plot_df_pc_plotly # Plotting functions
 
 
@@ -111,3 +111,49 @@ def proj_iids_ESobj(iids=[], es=None, dfw=[], df_snp=[], min_snps=10000, maf=0.0
     df_pc = get_pcs_proj_gts(g=gt, dfw=dfw, df_snp=df_snp, min_snps=min_snps, maf=maf)
     df_pc["iid"] = iids
     return df_pc
+
+###############################################
+### Project Autorun Eager output (highly MPI-EVA specific!)
+
+def project_eigenstrat_auto_eager(iids=[], code="TF", strand="double",
+                                  pca="HO", df_snp=[], df_ind=[], dfw=[], 
+                                  plot=["pc1", "pc2"], plot_bgrd_c=False, maf=0.05, min_snps=10000):
+    """[ATTENTION WORK IN PROGRESS NEED TO IMPLEMENT df_snp]!
+    Project iids from Autorun Eager output. Return PC projection dataframe (plotting done elsewhere)
+    Main input:
+    iids: Which iids to load
+    pca: Which PC to project on. One of `HO` / `EU`
+    
+    Optional input to overwrite default loading:
+    df_snp: SNP dataframe with snp column, PCA weights, and allele frequency (p)
+    df_ind: Individual dataframe
+    iids: Use only these iids to project
+    dfw: SNP weights from PCA
+    df_bgrd_pcs: Background PCs to plot
+
+    Optional parameters overwriting default settings 
+    [warning, break default projection comparison!]
+    maf: Minor allele frequency cutoff [float]
+
+    Optional output parameters:
+    plot: List of length 2: In which order pc1 and pc2 are plotted. If empty, no plot.
+    plot_flip_pcs: Whether to flip PC1 and PC2
+    fig_path: Where to save the figure of the PC projection. If empty, not plot saved.
+    plot_bgrd_c: Whether to plot background in stored colors.
+    savepath: Where to save the output table of PC coordinates. If empty, do not save.
+    """
+    
+    pf = get_projection_files(pca) # Load the pre-computed PC Object
+    if len(dfw)==0:
+        dfw = pf.get_snp_weights()
+    #if len(df_snp)==0:
+    #    df_snp = es.load_snp_df()
+
+    df_pc = get_pcs_proj(iids=iids,
+                       code=code, strand=strand,
+                       dfw=dfw, df_snp=df_snp)
+    return df_pc
+
+
+
+
