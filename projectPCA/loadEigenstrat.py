@@ -1,20 +1,108 @@
 """
-Classes for loading Eigenstrat Genotype Data from geno file.
+Classes for loading Genotype Data from an Eigenstrat (or PLINK) file.
 Derives from hapROH code (copied Oct 2025)
+Important functions: get_geno_i(), get_geno_all()
 @ Author: Harald Ringbauer, 2019, All rights reserved
 """
 import numpy as np
 import pandas as pd
 
-class EigenstratLoad(object):
-    """Class that loads and postprocesses Eigenstrats"""
-    base_path = "./Data/ReichLabEigenstrat/Raw/v37.2.1240K"
+
+class GenoLoad(object):
+    """Class that loads and postprocesses Genotype Files in Python.
+    Intended that specific implementations inherit from it."""
+    base_path = "" # Base path to file object
     nsnp = 0
     nind = 0
-    rlen = 0
     output = True
     df_snp = []  # Dataframe with all SNPs
     df_ind = [] # Dataframe with all iids
+
+    def __init__(self, base_path="", output=True):
+        """Concstructor: By default set number of SNPs,IIDs
+        and set the SNP and IID dataframe.
+        base_path: Data Path without suffix"""
+        self.output = output
+        self.base_path = base_path
+
+        self.df_snp = self.load_snp_df()   # Load the SNP DataFrame
+        self.df_ind = self.load_ind_df()   # Load the Individual DataFrame
+
+        self.nsnp = self.get_n_snps()
+        self.nind = self.get_n_inds() 
+        
+        assert(len(self.df_snp) == self.nsnp)  # Sanity Check
+        assert(len(self.df_ind) == self.nind)  # Sanity Check II
+
+        if self.output == True:
+            print(f"Loaded Genotype File set with {self.nind} Individuals and {self.nsnp} SNPs.")
+
+    def load_snp_df(self):
+        """Load the SNP dataframe.
+        Uses self.base_path
+        sep: What separator to use when loading the File"""
+        raise ImplementationError("Please Implement in your class!")
+        
+    def load_ind_df(self):
+        """Load the Individual dataframe.
+        Uses self.base_path
+        sep: What separator to use when loading the File"""
+        raise ImplementationError("Please Implement in your class!")
+
+    def get_n_snps(self):
+        """Return the number of SNPs"""
+        raise ImplementationError("Please Implement in your class!")
+
+    def get_n_inds(self):
+        """Return the number of Individuals"""
+        raise ImplementationError("Please Implement in your class!")
+    
+    def get_geno_all(self):
+        """Load all genotypes from Eigenstrat File.
+        Use self.nind for the number of individuals.
+        Return genotype matrix, with missing values set to missing_val"""
+        raise ImplementationError("Please Implement in your class!")
+
+    def get_geno_i(self, i):
+        """Load Individual i"""
+        raise ImplementationError("Please Implement in your class!")
+
+    def get_geno_iid(self, iid):
+        """Return Genotypes of Individual iid"""
+        i = self.get_index_iid(iid)
+        g = self.get_geno_i(i)
+        return g
+
+    def give_positions(self, ch):
+        """Return Array of Positions and Indices of
+         all SNPs on Chromosome ch"""
+        df_snp = self.df_snp
+        ch_loci = (df_snp["chr"] == ch)
+        idcs = np.where(ch_loci)[0]
+        assert(len(idcs) > 0)
+        pos = df_snp.loc[ch_loci, "pos"]
+        return pos, idcs
+
+    def give_ref_alt(self, ch):
+        """Return Arrays of Ref/Alt of all SNPs on Chromosome ch"""
+        df_snp = self.df_snp
+        df_t = df_snp.loc[df_snp["chr"] == ch, ["ref", "alt"]]  # Subset to ch
+        ref, alt = df_t["ref"].values, df_t["alt"].values
+        return ref, alt
+
+    def get_index_iid(self, iid):
+        """Get Index of Individual iid"""
+        # Detect the Individual
+        found = np.where(self.df_ind["iid"] == iid)[0]
+        if len(found)==0:
+            raise RuntimeError(f"Individual {iid} not found in Eigenstrat!")
+        else: 
+            i = found[0]
+        return i
+
+
+class EigenstratLoad(GenoLoad):
+    """Class that loads and postprocesses Eigenstrats"""
 
     def __init__(self, base_path="", output=True, sep=r"\s+"):
         """Concstructor:
@@ -36,7 +124,7 @@ class EigenstratLoad(object):
         assert(len(self.df_ind) == self.nind)  # Sanity Check II
 
         if self.output == True:
-            print(f"3 Eigenstrat Files with {self.nind} Individuals and {self.nsnp} SNPs")
+            print(f"Loaded Eigenstrat File set with {self.nind} Individuals and {self.nsnp} SNPs.")
 
     def load_snp_df(self, sep=r"\s+"):
         """Load the SNP dataframe.
@@ -92,12 +180,6 @@ class EigenstratLoad(object):
         #geno_sub[geno_sub == 3] = missing_val  # set missing values
         return geno_sub
 
-    def get_geno_iid(self, iid):
-        """Return Genotypes of Individual iid"""
-        i = self.get_index_iid(iid)
-        g = self.get_geno_i(i)
-        return g
-
     def give_bit_file(self):
         base_path = self.base_path
         geno = np.fromfile(self.base_path + ".geno",
@@ -112,33 +194,6 @@ class EigenstratLoad(object):
         mod_i = i % 4  # Calculate the rest
         return rlen_sub, mod_i
 
-    def give_positions(self, ch):
-        """Return Array of Positions and Indices of
-         all SNPs on Chromosome ch"""
-        df_snp = self.df_snp
-        ch_loci = (df_snp["chr"] == ch)
-        idcs = np.where(ch_loci)[0]
-        assert(len(idcs) > 0)
-        pos = df_snp.loc[ch_loci, "pos"]
-        return pos, idcs
-
-    def give_ref_alt(self, ch):
-        """Return Arrays of Ref/Alt of all SNPs on Chromosome ch"""
-        df_snp = self.df_snp
-        df_t = df_snp.loc[df_snp["chr"] == ch, ["ref", "alt"]]  # Subset to ch
-        ref, alt = df_t["ref"].values, df_t["alt"].values
-        return ref, alt
-
-    def get_index_iid(self, iid):
-        """Get Index of Individual iid"""
-        # Detect the Individual
-        found = np.where(self.df_ind["iid"] == iid)[0]
-        if len(found)==0:
-            raise RuntimeError(f"Individual {iid} not found in Eigenstrat!")
-        else: 
-            i = found[0]
-        return i
-
     def extract_snps(self, id, markers, conversion=True, dtype=np.int8):
         """Extract SNPs for Integer Index i on marker list
         markers. If conversion: Convert to VCF type encoding
@@ -146,7 +201,7 @@ class EigenstratLoad(object):
         geno = self.get_geno_i(id)
         geno = geno[markers] # Subset to markers
 
-        if conversion == True:
+        if conversion:
             geno_new = -np.ones((2,len(geno)), dtype=dtype)
             geno_new[:, geno==0]=1    # 2 Derived Alleles
             geno_new[:, geno==2]=0    # 2 Ancestral Alleles
@@ -270,7 +325,8 @@ class EigenstratEager(EigenstratLoad):
         return 0
 
 class EigenstratLoadUnpackedFast(EigenstratLoadUnpacked):
-    """Fast Class to load unpacked Eigenstrat File"""
+    """Fast Class to load unpacked Eigenstrat File.
+    Optimized version to load single iids (fast)"""
 
     def get_geno_i(self, i, missing_val=np.nan):
         """Load Genotype for Individual (Row) i,
@@ -284,9 +340,83 @@ class EigenstratLoadUnpackedFast(EigenstratLoadUnpacked):
         return geno
 
 #########################################################
+### Load PLINK file
+
+class PlinkLoad(GenoLoad):
+    """Class that loads and postprocesses PLINK files.
+    Same as Eigenstrat Superclass, but overwrites methods to load
+    SNP and IID info as well as encoded Genotype Data"""
+    bed_path = "" # Path to full bed file
+    bed = None # Place for bed reader object
+
+    def __init__(self, base_path="", output=True):
+        """Overwrite Concstructor:
+        base_path: Data path without the .bed ending.
+        output: Whether to print output."""
+        ### Lazy Import and load bed object
+        from bed_reader import open_bed # Import PLINK library only if needed.
+        self.bed_path = base_path + ".bed"
+        self.bed = open_bed(self.bed_path)
+
+        #### Run Standard Init
+        super(PlinkLoad, self).__init__(base_path=base_path, output=output)
+
+    def get_n_snps(self):
+        """Return number of SNPs"""
+        return self.bed.sid_count
+
+    def get_n_inds(self):
+        """Return number of IIDs"""
+        return self.bed.iid_count
+    
+    def load_snp_df(self):
+        """Load the SNP dataframe.
+        Uses bed object"""
+        if len(self.df_snp)==0:          
+            # Create SNP metadata DataFrame
+            df_snp = pd.DataFrame({
+                "snp": self.bed.sid,                 # SNP ID
+                "chr": self.bed.chromosome,          # Chromosome
+                "map": self.bed.cm_position/100,         # Genetic map position (cM)
+                "pos": self.bed.bp_position.astype("int"),         # Base pair position
+                "ref": self.bed.allele_1,            # A1 allele (PLINK coding)
+                "alt": self.bed.allele_2             # A2 allele
+            })
+
+        else:
+            df_snp = self.df_snp
+        return df_snp
+
+    def load_ind_df(self):
+        """Load the Individual dataframe.
+        Uses bed object"""
+        if len(self.df_ind)==0:
+            df_ind = pd.DataFrame({"iid":self.bed.iid.astype("str"), 
+                                   "sex":self.bed.sex.astype("str"), 
+                                   "cls":""})
+        else:
+            df_ind = self.df_ind
+        return df_ind
+
+    def get_geno_all(self):
+        """Load all genotypes from Eigenstrat File.
+        Use self.nind for number of individuals.
+        Return genotype matrix, with missing values set to missing_val"""
+        gt = self.bed.read()
+        gt = 2 - gt # To adjust for plink encoding
+        return gt
+    
+    def get_geno_i(self, i):
+        """Load Individual i"""
+        geno_sub = self.bed.read(np.s_[i,:])
+        geno_sub = 2 - geno_sub
+        return geno_sub
+
+
+
+#########################################################
 #########################################################
 ### Helper Function
-
 
 def is_binary_file(path, extension=".geno"):
     """Test whether a file at path + extension is binary.
@@ -320,11 +450,11 @@ def update_values(gt, x=[48,49,50,57], y=[2,1,0,9], copy=False):
 #########################################################
 #### Factory Method
 
-def get_eigenstrat_object(base_path, sep=r"\s+", packed=-1, mode="default", verbose=True):
+def get_eigenstrat_object(base_path, mode="default", sep=r"\s+", packed=-1, verbose=True):
     """Factory Method to Load Eigenstrat object
-    sep: What separator to use when loading the File. 
-    Default is space-seperated (by an arbitrary number of spaces).
-    mode: Which mode to use (default/eager/autoeager)
+    sep: What separator to use when loading an Eigenstrat File. 
+    The default is space-separated (by an arbitrary number of spaces).
+    mode: Which mode to use - can be: default / eager / autoeager / plink
     Packed: Whether Genotype Data is encoded in binary Format"""
 
     if mode=="default":
@@ -349,7 +479,10 @@ def get_eigenstrat_object(base_path, sep=r"\s+", packed=-1, mode="default", verb
     elif mode=="unpacked_fast":
             es = EigenstratLoadUnpackedFast(base_path, output=verbose, sep=sep)
 
+    elif mode=="plink":
+            es =  PlinkLoad(base_path, output=verbose)
+        
     else:
-        raise RuntimeError(f"Mode: {mode} not found. \nPlease use one of standard/eager/autoeager/unpacked_fast")
+        raise RuntimeError(f"Mode: {mode} not found. \nPlease use one of: standard/eager/autoeager/unpacked_fast/plink")
         
     return es
