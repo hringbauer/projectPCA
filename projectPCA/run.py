@@ -14,7 +14,7 @@ from projectPCA.plot_pca import plot_df_pc, plot_df_pc_plotly # Plotting functio
 
 
 def project_eigenstrat(es_path="", pca="HO", es_type="standard", savepath="", fig_path="",
-                       df_snp=[], df_ind=[], iids=[], dfw=[], df_bgrd_pcs=[],
+                       df_snp=[], df_ind=[], iids=[], dfw=[], df_bgrd_pcs=[], verbose=False, flip=False,
                        plot=["pc1", "pc2"], plot_bgrd_c=False, maf=0.05, min_snps=10000):
     """Load and project eigenstrat file. Plot, save, and return PC projection dataframe
     Main input:
@@ -28,6 +28,7 @@ def project_eigenstrat(es_path="", pca="HO", es_type="standard", savepath="", fi
     iids: Use only these iids to project
     dfw: SNP weights from PCA
     df_bgrd_pcs: Background PCs to plot
+    flip: Whether to check and flip SNPs matching ref/alt alleles
 
     Optional parameters overwriting default settings 
     [warning, break default projection comparison!]
@@ -35,33 +36,41 @@ def project_eigenstrat(es_path="", pca="HO", es_type="standard", savepath="", fi
 
     Optional output parameters:
     plot: List of length 2: In which order pc1 and pc2 are plotted. If empty, no plot.
-    plot_flip_pcs: Whether to flip PC1 and PC2
     fig_path: Where to save the figure of the PC projection. If empty, not plot saved.
     plot_bgrd_c: Whether to plot background in stored colors.
     savepath: Where to save the output table of PC coordinates. If empty, do not save.
+    verbose: Whether to print detailed output (for debugging)
     """
     
     pf = get_projection_files(pca) # Load the pre-computed PC Object
     if len(dfw)==0:
+        if verbose:
+            print(f"Getting SNP weights...")
         dfw = pf.get_snp_weights()
     if len(df_bgrd_pcs)==0:
+        if verbose:
+            print(f"Getting PCs...")
         df_bgrd_pcs = pf.get_projections_ref()
 
+    if verbose:
+        print(f"Getting es object...")
     es = get_eigenstrat_object(es_path, mode=es_type) # Load the eigenstrat Object
 
+    if verbose:
+        print(f"Running PCA projection...")
     df_pc = project_es_obj(es=es, dfw=dfw, df_bgrd_pcs=df_bgrd_pcs,
                            df_snp=df_snp, df_ind=df_ind, iids=iids,
                            savepath=savepath, fig_path=fig_path, 
                            plot=plot, plot_bgrd_c=plot_bgrd_c,
-                           maf=maf, min_snps=min_snps)
+                           maf=maf, min_snps=min_snps, verbose=verbose, flip=flip)
     return df_pc
 
 
 def project_es_obj(es=None, dfw=[], df_bgrd_pcs=[],
-                   df_snp=[], df_ind=[], iids=[],
+                   df_snp=[], df_ind=[], iids=[], flip=False,
                    plot=["pc1", "pc2"], plot_bgrd_c=False,
                    savepath="", fig_path="", 
-                   maf=0.05, min_snps=10000):
+                   maf=0.05, min_snps=10000, verbose=False):
     """Load and project eigenstrat file. Plot, save, and return PC projection dataframe
     es_path: Path to the target eigenstrat (up to .geno, .ind and .snp)
     dfw: Weight file to use
@@ -74,14 +83,18 @@ def project_es_obj(es=None, dfw=[], df_bgrd_pcs=[],
     maf: Minor Allele Frequency Cutoff."""
 
     if len(df_ind)==0:
+        if verbose:
+            print(f"Loading df_ind...")
         df_ind = es.load_ind_df()
     if len(df_snp)==0:
+        if verbose:
+            print(f"Loading df_snp...")
         df_snp = es.load_snp_df()
-    if len(iids)==0:
-        iids = df_ind["iid"][:].values
-        
+        if verbose:
+            print(f"Loading SNP df with {len(df_snp)} SNPs.")
+
     df_pc = proj_iids_ESobj(iids=iids, es=es, dfw=dfw, df_snp=df_snp, 
-                            maf=maf, min_snps=min_snps)
+                            maf=maf, min_snps=min_snps, verbose=verbose, flip=flip)
 
     if len(savepath)>0:
         df_pc.to_csv(savepath, index=False, sep="\t")
@@ -100,18 +113,32 @@ def project_es_obj(es=None, dfw=[], df_bgrd_pcs=[],
 ###############################################
 ### Project general eigenstrat (e.g., AADR)
 
-def proj_iids_ESobj(iids=[], es=None, dfw=[], df_snp=[], min_snps=10000, maf=0.05):
+def proj_iids_ESobj(iids=[], es=None, dfw=[], df_snp=[], flip=False,
+                    min_snps=10000, maf=0.05, verbose=False):
     """Get PCA dataframe starting from ES Object as input.
     es: hapROH eigenstrat object. created via load_eigenstrat factory function."""
 
     ### Load genotype data
-    gt = np.array([es.get_geno_iid(iid) for iid in iids], dtype="float16")
+    if verbose:
+        print(f"Loading Genotypes...")
+
+    if len(iids)>0:
+        gt = np.array([es.get_geno_iid(iid) for iid in iids], dtype="float16")
+    else: # If no iids given load them all
+        gt = es.get_geno_all()
+        iids = es.df_ind["iid"].values
+    if verbose:
+        print(f"Loaded genotype matrix {np.shape(gt)}.")
     
     ### Run Projection
-    df_pc = get_pcs_proj_gts(g=gt, dfw=dfw, df_snp=df_snp, min_snps=min_snps, maf=maf)
+    if verbose:
+        print(f"Running PCA projection...")
+    df_pc = get_pcs_proj_gts(g=gt, dfw=dfw, df_snp=df_snp, 
+                             min_snps=min_snps, maf=maf, flip=flip)
     df_pc["iid"] = iids
     return df_pc
 
+###############################################
 ###############################################
 ### Project Autorun Eager output (highly MPI-EVA specific!)
 
@@ -137,7 +164,6 @@ def project_eigenstrat_auto_eager(iids=[], code="TF", strand="double",
 
     Optional output parameters:
     plot: List of length 2: In which order pc1 and pc2 are plotted. If empty, no plot.
-    plot_flip_pcs: Whether to flip PC1 and PC2
     fig_path: Where to save the figure of the PC projection. If empty, not plot saved.
     plot_bgrd_c: Whether to plot background in stored colors.
     savepath: Where to save the output table of PC coordinates. If empty, do not save.

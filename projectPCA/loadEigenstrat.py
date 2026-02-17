@@ -10,7 +10,8 @@ import pandas as pd
 
 class GenoLoad(object):
     """Class that loads and postprocesses Genotype Files in Python.
-    Intended that specific implementations inherit from it."""
+    Intended that specific implementations inherit from this dummy class.
+    Already contains some key processing functions."""
     base_path = "" # Base path to file object
     nsnp = 0
     nind = 0
@@ -64,7 +65,8 @@ class GenoLoad(object):
         raise ImplementationError("Please Implement in your class!")
 
     def get_geno_i(self, i):
-        """Load Individual i"""
+        """Load Individual i.
+        Return 1D genotype array"""
         raise ImplementationError("Please Implement in your class!")
 
     def get_geno_iid(self, iid):
@@ -256,7 +258,7 @@ class EigenstratLoadUnpacked(EigenstratLoad):
 
 class EigenstratEager(EigenstratLoad):
     """Load Eigenstrat from Autoeager output. Faster than the default version.
-    Knows that the eager eigenstrats is unpacked and contains only one IID"""
+    Knows that the eager eigenstrats are unpacked and contains only one IID"""
 
     def __init__(self, base_path="", output=True, sep=r"\s+", nsnp=0, nind=0):
         """Overwrite general Constructor:
@@ -269,9 +271,9 @@ class EigenstratEager(EigenstratLoad):
         if len(base_path) > 0:
             self.base_path = base_path
 
-        if nind==0:
-            self.df_ind = self.load_ind_df(sep=sep)   # Load the Individual DataFrame
-            nind = len(self.df_ind)
+ 
+        self.df_ind = self.load_ind_df(sep=sep)   # Load the Individual DataFrame
+        nind = len(self.df_ind)
             
         if nsnp==0:
             self.df_snp = self.load_snp_df(sep=sep)   # Load the SNP DataFrame
@@ -379,8 +381,8 @@ class PlinkLoad(GenoLoad):
                 "chr": self.bed.chromosome,          # Chromosome
                 "map": self.bed.cm_position/100,         # Genetic map position (cM)
                 "pos": self.bed.bp_position.astype("int"),         # Base pair position
-                "ref": self.bed.allele_1,            # A1 allele (PLINK coding)
-                "alt": self.bed.allele_2             # A2 allele
+                "ref": self.bed.allele_2,            # A1 is Plink Alt. A2 is Plink Ref.
+                "alt": self.bed.allele_1             
             })
 
         else:
@@ -410,7 +412,7 @@ class PlinkLoad(GenoLoad):
         """Load Individual i"""
         geno_sub = self.bed.read(np.s_[i,:])
         geno_sub = 2 - geno_sub
-        return geno_sub
+        return geno_sub[0]
 
 
 
