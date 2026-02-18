@@ -25,7 +25,7 @@ def project_eigenstrat(es_path="", pca="HO", es_type="standard", savepath="", fi
     Optional input to overwrite default loading:
     df_snp: SNP dataframe with snp column, PCA weights, and allele frequency (p)
     df_ind: Individual dataframe
-    iids: Use only these iids to project
+    iids: Use only these iids to project. If empty, project all IIDs in file.
     dfw: SNP weights from PCA
     df_bgrd_pcs: Background PCs to plot
     flip: Whether to check and flip SNPs matching ref/alt alleles
