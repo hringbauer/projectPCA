@@ -61,7 +61,8 @@ class GenoLoad(object):
     def get_geno_all(self):
         """Load all genotypes from Eigenstrat File.
         Use self.nind for the number of individuals.
-        Return genotype matrix, with missing values set to missing_val"""
+        Return genotype matrix, with missing values set to missing_val.
+        Expected 2D Format is [#iids,#SNPs]"""
         raise ImplementationError("Please Implement in your class!")
 
     def get_geno_i(self, i):
@@ -255,6 +256,16 @@ class EigenstratLoadUnpacked(EigenstratLoad):
         geno[idx] = missing_val
         return geno
 
+    def get_geno_all(self, missing_val=np.nan):
+        """Load all genotypes from Eigenstrat File.
+        Use self.nind for number of individuals.
+        Return genotype matrix, with missing values set to missing_val"""
+        geno=np.genfromtxt(self.base_path + ".geno", delimiter=1, dtype="float", ndmin=2)
+        idx = geno == 9
+        geno = 2 - geno
+        geno[idx] = missing_val
+        return geno.T
+
 
 class EigenstratEager(EigenstratLoad):
     """Load Eigenstrat from Autoeager output. Faster than the default version.
@@ -338,6 +349,15 @@ class EigenstratLoadUnpackedFast(EigenstratLoadUnpacked):
         
         geno = raw.reshape(self.nsnp, self.nind) # Put into Matrix
         geno = geno[:, i].astype('float') ### Extract Relevant column
+        geno = update_values(geno, x=[48,49,50,57], y=[2,1,0,missing_val], copy=False) 
+        return geno
+
+    def get_geno_all(self, missing_val=np.nan):
+        """Return all genotypes."""
+        raw = np.fromfile(self.base_path + ".geno", dtype=np.uint8)
+        raw = raw[raw != 10]   # remove '\n'
+
+        geno = raw.reshape(self.nsnp, self.nind).T.astype('float') # Put into Matrix
         geno = update_values(geno, x=[48,49,50,57], y=[2,1,0,missing_val], copy=False) 
         return geno
 

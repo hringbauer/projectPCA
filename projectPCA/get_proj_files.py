@@ -46,12 +46,25 @@ class Projection_Files_EU(Projection_Files):
         path_ho_pcs = impresources.files(data) / "joscha_v1" / "joscha.ho_proj.euro_c.maf05.tsv"
         self.df_bgrd_pcs = pd.read_csv(path_ho_pcs, sep="\t")
 
+class Projection_Files_EUAS(Projection_Files):
+    """Based on Eurasian HO PCA"""
+    
+    def __init__(self):
+        path_wts = impresources.files(data) / "eurasian_v1" / "eurasian_weights_p.tsv"
+        self.dfw = pd.read_csv(path_wts, sep="\t")
+
+        path_ho_pcs = impresources.files(data) / "eurasian_v1" / "eurasian_ho_proj.c.maf05.tsv"
+        self.df_bgrd_pcs = pd.read_csv(path_ho_pcs, sep="\t")
+
          
 def get_projection_files(mode="HO"):
     """Factory Function to return the right Projection_Files object. Currently implemented:
     HO: Human origin West Eurasia projection
     EU: Based on Joscha's  Fine-Scale EU PCA 
     (see Gretzinger et al 2022, https://doi.org/10.1038/s41586-022-05247-2)
+    EUAS: Eurasian PCA of HO samples. See e.g.
+    Skourtanioti et al 2025
+    https://doi.org/10.1016/j.cell.2025.07.013
     """
 
     if mode=="HO":
@@ -60,5 +73,8 @@ def get_projection_files(mode="HO"):
     elif mode=="EU":
         return Projection_Files_EU()
 
+    elif mode=="EUAS":
+        return Projection_Files_EUAS()
+
     else:
-        raise RuntimeWarning(f"Mode: `{mode}` is not implemented. Please provide one of HO/ EU.")
+        raise RuntimeWarning(f"Mode: `{mode}` is not implemented. Please provide one of HO / EU / EUAS.")
