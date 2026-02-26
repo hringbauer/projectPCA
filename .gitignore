@@ -2,6 +2,7 @@ figs/
 dist/
 build/
 projectPCA.egg-info/
+README_hidden.txt
 
 
 # Byte-compiled / optimized / DLL files
