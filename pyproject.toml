@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "projectPCA"
-version = "0.3"
-requires-python = ">= 3.6"
+version = "0.3.1" # 0.4 March 24th 2026
+requires-python = ">= 3.9"
 dependencies = ['numpy', 'pandas', 'matplotlib']
 description = "Project (ancient) human genomes onto pre-computed standard PCA"
 authors = [
@@ -24,6 +24,7 @@ classifiers = ["Programming Language :: Python :: 3",
 
 [project.optional-dependencies]
 plink = ["bed-reader"]
+interactive = ["plotly"]
 
 [tool.setuptools.packages.find]
 namespaces = false

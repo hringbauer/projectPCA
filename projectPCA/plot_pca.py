@@ -3,12 +3,6 @@
 
 import matplotlib.pyplot as plt
 
-### Optional Import of plotly for HTML plotting
-try:
-    import plotly.graph_objects as go
-except:
-    go = False
-
 def plot_df_pc(df_pcs=[], df_bgrd_pcs=[], plot_cols=["pc1", "pc2"],
                figsize=(6,6), plot_bgrd_c=False, 
                s=30, lw=0.5, leg_loc="center left", font_size_leg=8,
@@ -59,8 +53,12 @@ def plot_df_pc_plotly(
     savepath="", show=True, title="PCA Plot (Interactive)"):
     """plot_bgrd_c not implemented yet!"""
 
-    if not go:
-        print("You need to install Plotly to plot .html. Aborting figure...")
+    ### Check Plotly Import
+    try:
+        import plotly.graph_objects as go
+    except Exception as e:
+        print("You need to install Plotly to plot .html. Aborting figure... \nThe error message:")
+        print(e) # Print the Error Message
         return None
     
     col1, col2 = plot_cols
@@ -81,7 +79,7 @@ def plot_df_pc_plotly(
             marker=dict(size=5, color="lightgray", opacity=0.6),
             text=hover_bg,
             hovertemplate=hovertemplate_bg,
-            name="Background"
+            name="Modern IIDs"
         ))
 
     # Foreground points
@@ -93,7 +91,7 @@ def plot_df_pc_plotly(
         marker=dict(size=s, color="steelblue", line=dict(width=lw, color="black")),
         text=df_pcs["iid"],
         hovertemplate=hovertemplate_fg,
-        name="Samples"
+        name="Projected IIDs"
     ))
 
     # Layout
