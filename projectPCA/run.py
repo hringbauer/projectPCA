@@ -19,7 +19,7 @@ def project_eigenstrat(es_path="", pca="HO", es_type="standard", savepath="", fi
     """Load and project eigenstrat file. Plot, save, and return PC projection dataframe
     Main input:
     es_path: Path to the target eigenstrat (up to .geno, .ind and .snp suffix)
-    pca: Which PC to project on. One of HO / EU
+    pca: Which PC to project on. One of HO (Human Origin PCA) / EU (Gretzinger PCA) / EUAS (Eurasian PCA)
     es_type: Which eigenstrat type to load. One of default/eager/autoeager
     
     Optional input to overwrite default loading:

@@ -1,3 +1,7 @@
+### 0.3.2 May 4th 2026, Harald
+- Fixed critical bug when loading PLINK data: Genotypes were erroneously flipped.
+- Fixed data for Westeurasian HO PCA: ref/alt allele added (to enable flipping alleles)
+
 ### 0.3.1 March 24th 2026, Harald Ringbauer
 - Fixed requirement for >=Python 3.9 (based on file import)
 - Moved plotly dependency check to be in function

@@ -101,7 +101,8 @@ def get_pcs_proj_gts(g=[], dfw=[], df_snp=[], min_snps=10000, maf=0.05,
     min_snps: Minimum Number of covered SNPs to be projected.
     If less than that, return NAN.
     g: Genotype Matrix (n iids x k SNPs) of entries 0/1/2
-    df_snp: SNP dataframe matching gts (snp file to genotype file)
+    df_snp: SNP dataframe matching gts (snp file to genotype file).
+    Columns must include: snp, ref, alt
     flip: Whether to check for flipped alleles and flipping them"""
     assert(np.shape(g)[1] == len(df_snp)) # Sanity Check whether geno file matches snp file
 

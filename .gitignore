@@ -1,6 +1,7 @@
 figs/
 dist/
-build/
+build
+input/
 projectPCA.egg-info/
 README_hidden.txt
 

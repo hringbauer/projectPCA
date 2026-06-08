@@ -56,15 +56,27 @@ class Projection_Files_EUAS(Projection_Files):
         path_ho_pcs = impresources.files(data) / "eurasian_v1" / "eurasian_ho_proj.c.maf05.tsv"
         self.df_bgrd_pcs = pd.read_csv(path_ho_pcs, sep="\t")
 
+class Projection_Files_MED(Projection_Files):
+    """Based on pan-Mediterranean PCA from Ringbauer et al 2025"""
+    
+    def __init__(self):
+        path_wts = impresources.files(data) / "med_v1" / "med_weights_p.tsv"
+        self.dfw = pd.read_csv(path_wts, sep="\t")
+
+        path_ho_pcs = impresources.files(data) / "med_v1" / "med_ho_proj.c.maf05.tsv"
+        self.df_bgrd_pcs = pd.read_csv(path_ho_pcs, sep="\t")
+
          
 def get_projection_files(mode="HO"):
     """Factory Function to return the right Projection_Files object. Currently implemented:
     HO: Human origin West Eurasia projection
-    EU: Based on Joscha's  Fine-Scale EU PCA 
+    EU: Based on Joscha's  Fine-Scale EU PCA
     (see Gretzinger et al 2022, https://doi.org/10.1038/s41586-022-05247-2)
     EUAS: Eurasian PCA of HO samples. See e.g.
     Skourtanioti et al 2025
     https://doi.org/10.1016/j.cell.2025.07.013
+    MED: Pan-Mediterranean PCA, cominbing HO West Eurasia plus additional
+    North African populations. See Ringbauer et al 2025 (Punic Mediterranean)
     """
 
     if mode=="HO":
@@ -76,5 +88,8 @@ def get_projection_files(mode="HO"):
     elif mode=="EUAS":
         return Projection_Files_EUAS()
 
+    elif mode="MED":
+        return Projection_Files_MED()
+
     else:
-        raise RuntimeWarning(f"Mode: `{mode}` is not implemented. Please provide one of HO / EU / EUAS.")
+        raise RuntimeWarning(f"Mode: `{mode}` is not implemented. Please provide one of HO / EU / EUAS / MED.")

@@ -425,13 +425,13 @@ class PlinkLoad(GenoLoad):
         Use self.nind for number of individuals.
         Return genotype matrix, with missing values set to missing_val"""
         gt = self.bed.read()
-        gt = 2 - gt # To adjust for plink encoding
+        #gt = 2 - gt # To adjust for plink encoding. [Bug!]
         return gt
     
     def get_geno_i(self, i):
         """Load Individual i"""
         geno_sub = self.bed.read(np.s_[i,:])
-        geno_sub = 2 - geno_sub
+        #geno_sub = 2 - geno_sub [Bug!]
         return geno_sub[0]
 
 
