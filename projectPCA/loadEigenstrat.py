@@ -160,14 +160,14 @@ class EigenstratLoad(GenoLoad):
     
     def get_geno_all(self, missing_val=3):
         """Load all genotypes from Eigenstrat File.
-        Use self.nind for number of individuals.
+        Use self.nind for the number of individuals.
         Return genotype matrix, with missing values set to missing_val"""
         geno = self.give_bit_file()  # Load the whole bit file
         gt = np.unpackbits(geno, axis=1)[:,:2*self.nind]
         gt = 2 * gt[:, 0::2] + gt[:, 1::2]
         gt = update_values(gt, x=[0,1,2,3], y=[2,1,0,np.nan], copy=True) # use COPY as values overlap
         #gt[gt == 3] = missing_val  # set missing values
-        return gt
+        return gt.T
 
     def get_geno_i(self, i, missing_val=np.nan):
         """Load Individual i"""

@@ -63,7 +63,7 @@ class Projection_Files_MED(Projection_Files):
         path_wts = impresources.files(data) / "med_v1" / "med_weights_p.tsv"
         self.dfw = pd.read_csv(path_wts, sep="\t")
 
-        path_ho_pcs = impresources.files(data) / "med_v1" / "med_ho_proj.c.maf05.tsv"
+        path_ho_pcs = impresources.files(data) / "med_v1" / "med_ho_proj.c.maf001.tsv" 
         self.df_bgrd_pcs = pd.read_csv(path_ho_pcs, sep="\t")
 
          
@@ -88,7 +88,7 @@ def get_projection_files(mode="HO"):
     elif mode=="EUAS":
         return Projection_Files_EUAS()
 
-    elif mode="MED":
+    elif mode=="MED":
         return Projection_Files_MED()
 
     else:

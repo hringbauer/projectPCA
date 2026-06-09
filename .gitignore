@@ -2,6 +2,7 @@ figs/
 dist/
 build
 input/
+projectPCA/data/
 projectPCA.egg-info/
 README_hidden.txt
 

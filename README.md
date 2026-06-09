@@ -9,13 +9,16 @@ python3 -m pip install projectPCA
 ```
 
 ## List of available PCAs
-As of early 2026, two pre-computed PCAs are officially bundled into `projectPCA`. The bracket denotes the code you can use for all this PCA.
+As of early 2026, three pre-computed PCAs are officially bundled into `projectPCA`. The bracket denotes the code you can use for all this PCA.
 
 - **HO Westeurasia (HO)**
 Standard Western Eurasian PCA, which is widely used in aDNA studies. PC1 corresponds to West-East, and PC2 to North-South.
 
 - **HO Eurasian (EUAS)**
 Standard whole-Eurasian PCA, widely used in aDNA studies. Excellent to resolve West versus East Asian ancestry (on PC1). PC2 generally corresponds to North-South.
+
+- **HO Mediterranean (MED)**
+This PCA is an extension of the standard Western Eurasian PCA (see above) and includes additional North African populations. That gives a more useful resolution for North African ancestry. The PCA is based on the one from the Puncic paper ([Ringbauer et al 2025](https://doi.org/10.1038/s41586-025-08913-3)). **Important**: You have to use `maf=0.001` here, which is different from the default. See an example Vignette [here](https://www.dropbox.com/scl/fo/n1j71uhyf1yj05bljyrz1/APURb336_K7cYz1NybhW7hQ?rlkey=7uy3tz55l6l28s3li899vcllt&st=fnoj31oj&dl=0).
 
 
 ## Usage

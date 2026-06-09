@@ -1,6 +1,9 @@
+### 0.4.0 June 9th 2026, Harald
+- Added new mode MED: Projects onto pan-Mediterranean PCA that includes also North African modern individuals.
+
 ### 0.3.2 May 4th 2026, Harald
 - Fixed critical bug when loading PLINK data: Genotypes were erroneously flipped.
-- Fixed data for Westeurasian HO PCA: ref/alt allele added (to enable flipping alleles)
+- Fixed data for West Eurasian HO PCA: ref/alt allele added (to enable flipping alleles)
 
 ### 0.3.1 March 24th 2026, Harald Ringbauer
 - Fixed requirement for >=Python 3.9 (based on file import)
