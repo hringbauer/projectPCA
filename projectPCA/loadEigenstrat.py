@@ -471,7 +471,7 @@ def update_values(gt, x=[48,49,50,57], y=[2,1,0,9], copy=False):
 #########################################################
 #### Factory Method
 
-def get_eigenstrat_object(base_path, mode="default", sep=r"\s+", packed=-1, verbose=True):
+def get_eigenstrat_object(base_path, mode="standard", sep=r"\s+", packed=-1, verbose=True):
     """Factory Method to Load Eigenstrat object
     sep: What separator to use when loading an Eigenstrat File. 
     The default is space-separated (by an arbitrary number of spaces).
@@ -479,7 +479,7 @@ def get_eigenstrat_object(base_path, mode="default", sep=r"\s+", packed=-1, verb
     Packed: Whether Genotype Data is encoded in binary Format"""
     print("Local Version")
 
-    if mode=="default":
+    if mode=="standard":
         ### Determine automatically
         if packed==-1:
             packed = is_binary_file(base_path, extension=".geno")

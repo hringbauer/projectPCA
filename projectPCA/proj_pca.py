@@ -54,8 +54,8 @@ def get_least_square_2d(dfw,  gts, w1="w1", w2="w2", maf=0.05):
     """Get least square projection of gts using weights in dftw.
     gts MUST match dfw (weights)
     Return pc1 & pc2 coordinates"""
-    p = dfw["p"].values
-    g_norm = get_gts_norm(gts, p, maf=maf)
+    p = dfw["p"].values # Get allele frequencies
+    g_norm = get_gts_norm(gts, p, maf=maf) # Normalize genotype matrix. Set NAN where <MAF
     
     a = np.array((dfw[w1], dfw[w2])).T
 
@@ -67,6 +67,30 @@ def get_least_square_2d(dfw,  gts, w1="w1", w2="w2", maf=0.05):
         
         pcs0 = np.linalg.lstsq(a[idx], g_n[idx])[0]
         pcs[:,i] = pcs0
+
+    return pcs
+
+import numpy as np
+
+def get_least_square_pcs(dfw, gts, ws=["w1", "w2"], maf=0.05):
+    """Get least square projection of gts using weights in dfw.
+    dfw: DataFrame with allele frequencies in column "p" and weight columns.
+    gts: genotype matrix; must match dfw (rows of gts = individuals,
+         columns = loci, same order as dfw).
+    ws:  list of weight column names, e.g. ["w1", ..., "wn"].
+    Return pc matrix of shape (len(ws), n_individuals)
+    where row j holds the coordinates for weight column ws[j]."""
+    p = dfw["p"].values  # Allele frequencies
+    g_norm = get_gts_norm(gts, p, maf=maf)  # Normalize; NaN where < MAF
+
+    a = dfw[list(ws)].values  # (n_loci, k) design matrix
+
+    n = len(g_norm)  # Nr iids
+    pcs = np.zeros((len(ws), n), dtype="float")
+
+    for i, g_n in enumerate(g_norm):
+        idx = ~np.isnan(g_n)
+        pcs[:, i] = np.linalg.lstsq(a[idx], g_n[idx], rcond=None)[0]
 
     return pcs
 
@@ -96,7 +120,7 @@ def get_pcs_proj(iids=[], code="SG", strand="single",
 
 
 def get_pcs_proj_gts(g=[], dfw=[], df_snp=[], min_snps=10000, maf=0.05,
-                     flip=False, rs_id_col="snp"):
+                     flip=False, rs_id_col="snp", ws=["w1", "w2"]):
     """Get PC Projection of IIDs.
     min_snps: Minimum Number of covered SNPs to be projected.
     If less than that, return NAN.
@@ -131,7 +155,8 @@ def get_pcs_proj_gts(g=[], dfw=[], df_snp=[], min_snps=10000, maf=0.05,
     cov = print_covered(g1, output=False)
 
     ### Do the projection 
-    pc_proj = get_least_square_2d(dfw1, g1, maf=maf)
+    #pc_proj = get_least_square_2d(dfw1, g1, maf=maf) # legacy function
+    pc_proj = get_least_square_pcs(dfw1, g1, maf=maf, ws=ws)
 
     ### Create Output projection
     df_pc = pd.DataFrame({"pc1":pc_proj[0], "pc2":pc_proj[1], "#SNP":cov})
