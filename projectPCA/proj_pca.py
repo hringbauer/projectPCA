@@ -94,8 +94,8 @@ def get_least_square_pcs(dfw, gts, ws=["w1", "w2"], maf=0.05):
 
     return pcs
 
-def get_pcs_proj(iids=[], code="SG", strand="single",
-                 dfw=[], df_snp=[], min_snps=10000, maf=0.05):
+def get_pcs_proj(iids=[], code="SG", strand="single", dfw=[], df_snp=[], 
+                 ws=["w1", "w2"], min_snps=10000, maf=0.05):
     """Get PC Projection of IIDs. Specific to Auto Eager iids!
     min_snps: Minimum Number of covered SNPs to be projected.
     If less than that, return NAN.
@@ -113,7 +113,7 @@ def get_pcs_proj(iids=[], code="SG", strand="single",
     assert(np.shape(g)[1] == len(df_snp)) # Sanity Check whether geno file matches snp file
 
     ### Do the projection 
-    df_pc = get_pcs_proj_gts(g=g, dfw=dfw, df_snp=df_snp, min_snps=min_snps, maf=maf)
+    df_pc = get_pcs_proj_gts(g=g, dfw=dfw, df_snp=df_snp, min_snps=min_snps, maf=maf, ws=ws)
     df_pc["iid"]=iids # Set iids
 
     return df_pc
@@ -141,7 +141,7 @@ def get_pcs_proj_gts(g=[], dfw=[], df_snp=[], min_snps=10000, maf=0.05,
     if len(dfw1)==0:
         raise RuntimeWarning("No intersecting SNPs with projection weights. Please check snp column of input .snp file.")
 
-    ### Flip (and and filter to matching only):
+    ### Flip (and filter to matching only):
     if flip:
         idx1 = (dfw1["ref_x"]==dfw1["ref_y"]) & (dfw1["alt_x"]==dfw1["alt_y"]) # fit
         idx2 = (dfw1["ref_x"]==dfw1["alt_y"]) & (dfw1["alt_x"]==dfw1["ref_y"]) # flip
