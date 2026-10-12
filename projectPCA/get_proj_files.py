@@ -29,7 +29,7 @@ class Projection_Files_HO(Projection_Files):
     """HO Origin Projection with 2 PC weights."""
     
     def __init__(self):
-        path_wts = impresources.files(data) / "we_v1" / "20250422.ho_ptn_weights_p.tsv"
+        path_wts = impresources.files(data) / "we_v1" / "20250422.ho_ptn_weights_p.tsv.gz"
         self.dfw = pd.read_csv(path_wts, sep="\t")
 
         path_ho_pcs = impresources.files(data) / "we_v1" / "20250422.ho_projections.tsv"
@@ -40,10 +40,10 @@ class Projection_Files_HO10(Projection_Files):
     
     
     def __init__(self):
-        path_wts = impresources.files(data) / "we_v1" / "20261004.ho_ptn_weights10_p.tsv"
+        path_wts = impresources.files(data) / "we_v1" / "20261004.ho_ptn_weights10_p.tsv.gz"
         self.dfw = pd.read_csv(path_wts, sep="\t")
 
-        path_ho_pcs = impresources.files(data) / "we_v1" / "20261004.ho_projections.tsv"
+        path_ho_pcs = impresources.files(data) / "we_v1" / "20261004.ho_projections_pc10.tsv"
         self.df_bgrd_pcs = pd.read_csv(path_ho_pcs, sep="\t")
 
 class Projection_Files_EU(Projection_Files):
@@ -78,9 +78,10 @@ class Projection_Files_MED(Projection_Files):
 
          
 def get_projection_files(mode="HO"):
-    """Factory Function to return the right Projection_Files object. Currently implemented:
+    """Factory Function to return the right Projection_Files object. Currently implemented
+    are the following modes:
     HO: Human origin West Eurasia projection
-    HO10: Sames as HO, but with 10 PC weights available.
+    HO10: Same as HO, but with 10 PC weights available.
     EU: Based on Joscha's  Fine-Scale EU PCA
     (see Gretzinger et al 2022, https://doi.org/10.1038/s41586-022-05247-2)
     EUAS: Eurasian PCA of HO samples. See e.g.
@@ -93,7 +94,7 @@ def get_projection_files(mode="HO"):
     if mode=="HO":
         return Projection_Files_HO()
 
-    elif mode=="HO10"
+    elif mode=="HO10":
         return Projection_Files_HO10()
 
     elif mode=="EU":

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "projectPCA"
-version = "0.4.1" # 0.4 March 24th 2026
+version = "0.5.0" # 0.5 October 12th 2026
 requires-python = ">= 3.9"
 dependencies = ['numpy', 'pandas', 'matplotlib']
 description = "Project (ancient) human genomes onto pre-computed standard PCA"
@@ -30,6 +30,6 @@ interactive = ["plotly"]
 namespaces = false
 
 [tool.setuptools.package-data]
-projectPCA = ["**/*.tsv"]
+projectPCA = ["**/*.tsv",  "**/*.tsv.gz"]
 
 

@@ -5,7 +5,8 @@ import matplotlib.pyplot as plt
 
 def plot_df_pc(df_pcs=[], df_bgrd_pcs=[], plot_cols=["pc1", "pc2"],
                figsize=(6,6), plot_bgrd_c=False, 
-               s=30, lw=0.5, leg_loc="center left", font_size_leg=8,
+               s=30, lw=0.5, leg_loc="center left", 
+               font_size_leg=8, cols_leg=1,
                savepath="", show=True):
     """Plot a simple PCA:
     df_pcs: Value of the PCA to plot
@@ -35,7 +36,7 @@ def plot_df_pc(df_pcs=[], df_bgrd_pcs=[], plot_cols=["pc1", "pc2"],
     ax.set_xlabel(col1)
     ax.set_ylabel(col2)
     ax.legend(loc=leg_loc, bbox_to_anchor=(1.04, 0.5), fontsize=font_size_leg,
-              borderaxespad=0)
+              borderaxespad=0, ncol=cols_leg)
 
     ### Save Figure
     if len(savepath)>0:

@@ -425,7 +425,7 @@ class PlinkLoad(GenoLoad):
         Use self.nind for number of individuals.
         Return genotype matrix, with missing values set to missing_val"""
         gt = self.bed.read()
-        print("Temporary local version. HOT FIX!!")
+        #print("Temporary local version. HOT FIX!!")
         #gt = 2 - gt # To adjust for plink encoding
         return gt
     
@@ -471,15 +471,15 @@ def update_values(gt, x=[48,49,50,57], y=[2,1,0,9], copy=False):
 #########################################################
 #### Factory Method
 
-def get_eigenstrat_object(base_path, mode="standard", sep=r"\s+", packed=-1, verbose=True):
+def get_eigenstrat_object(base_path, mode="default", sep=r"\s+", packed=-1, verbose=True):
     """Factory Method to Load Eigenstrat object
     sep: What separator to use when loading an Eigenstrat File. 
     The default is space-separated (by an arbitrary number of spaces).
-    mode: Which mode to use - can be: default / eager / autoeager / plink
-    Packed: Whether Genotype Data is encoded in binary Format"""
+    mode: Which mode to use - can be: default / eager / autoeager / unpacked_fast/ plink
+    Packed: Whether Genotype Data is encoded in binary Format (-1: Detect automatically)"""
     print("Local Version")
 
-    if mode=="standard":
+    if mode=="default":
         ### Determine automatically
         if packed==-1:
             packed = is_binary_file(base_path, extension=".geno")

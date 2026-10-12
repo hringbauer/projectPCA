@@ -1,11 +1,11 @@
 # Instructions on how to upload a package to PYPI
-This instruction is based on `https://packaging.python.org/tutorials/packaging-projects/`
-Harald keeps this file as notes and a reminder.
+These instructions are based on `https://packaging.python.org/tutorials/packaging-projects/`
+Harald keeps this file as notes and reminders.
 The installation is based on a `pyproject.toml` setup. `projectPCA` is a pure-Python project with no extensions. I distribute both source and any-wheel.
 
 ## 1) Load Python environment and navigate to folder
 - On Leipzig HPC Cluster (primary source to create package since 2025):
-Activate Python environment and go to the hapROH package folder:
+Activate the Python environment and go to the hapROH package folder:
 
 pyenvhpc312
 cd /mnt/archgen/users/hringbauer/git/projectPCA/
@@ -13,7 +13,7 @@ cd /mnt/archgen/users/hringbauer/git/projectPCA/
 ### 1b) For a local test install (e.g., for unit tests), run from ./package/ folder:
 pip3 install ./
 
-Add flag  `--user` if not in a virtual environment.
+Add the flag  `--user` if not in a virtual environment.
 
 ### 1c) Run Tests of Expected Behavior
 - Run Notebook for tests: `./tests/test_proj_HO_Leipzig.ipynb`

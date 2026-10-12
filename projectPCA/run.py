@@ -15,7 +15,7 @@ from projectPCA.plot_pca import plot_df_pc, plot_df_pc_plotly # Plotting functio
 
 def project_eigenstrat(es_path="", pca="HO", es_type="standard", savepath="", fig_path="",
                        df_snp=[], df_ind=[], iids=[], dfw=[], df_bgrd_pcs=[], verbose=False, flip=False,
-                       ws=["w1", "w2"], plot=["pc1", "pc2"], 
+                       ws=["w1", "w2"], plot=["pc1", "pc2"], cols_leg=1,
                        plot_bgrd_c=False, maf=0.05, min_snps=10000):
     """Load and project eigenstrat file. Plot, save, and return PC projection dataframe
     Main input:
@@ -63,7 +63,7 @@ def project_eigenstrat(es_path="", pca="HO", es_type="standard", savepath="", fi
     df_pc = project_es_obj(es=es, dfw=dfw, df_bgrd_pcs=df_bgrd_pcs,
                            df_snp=df_snp, df_ind=df_ind, iids=iids, ws=ws,
                            savepath=savepath, fig_path=fig_path, 
-                           plot=plot, plot_bgrd_c=plot_bgrd_c,
+                           plot=plot, plot_bgrd_c=plot_bgrd_c, cols_leg=cols_leg,
                            maf=maf, min_snps=min_snps, verbose=verbose, flip=flip)
     return df_pc
 
@@ -71,7 +71,7 @@ def project_eigenstrat(es_path="", pca="HO", es_type="standard", savepath="", fi
 def project_es_obj(es=None, dfw=[], df_bgrd_pcs=[],
                    df_snp=[], df_ind=[], iids=[], flip=False,
                    ws=["w1", "w2"], plot=["pc1", "pc2"], plot_bgrd_c=False,
-                   savepath="", fig_path="", 
+                   savepath="", fig_path="", cols_leg=1,
                    maf=0.05, min_snps=10000, verbose=False):
     """Load and project eigenstrat file. Plot, save, and return PC projection dataframe
     es_path: Path to the target eigenstrat (up to .geno, .ind and .snp)
@@ -108,7 +108,8 @@ def project_es_obj(es=None, dfw=[], df_bgrd_pcs=[],
                    plot_cols=plot, savepath=fig_path)
         else:
             plot_df_pc(df_pcs=df_pc, df_bgrd_pcs=df_bgrd_pcs, 
-                       plot_cols=plot, plot_bgrd_c=plot_bgrd_c, savepath=fig_path)
+                       plot_cols=plot, plot_bgrd_c=plot_bgrd_c, 
+                       cols_leg=cols_leg, savepath=fig_path)
     return df_pc
 
 

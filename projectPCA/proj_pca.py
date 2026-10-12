@@ -159,7 +159,11 @@ def get_pcs_proj_gts(g=[], dfw=[], df_snp=[], min_snps=10000, maf=0.05,
     pc_proj = get_least_square_pcs(dfw1, g1, maf=maf, ws=ws)
 
     ### Create Output projection
-    df_pc = pd.DataFrame({"pc1":pc_proj[0], "pc2":pc_proj[1], "#SNP":cov})
+    #df_pc = pd.DataFrame({"pc1":pc_proj[0], "pc2":pc_proj[1], "#SNP":cov})
+    pcs = [w.replace("w", "pc") for w in ws] # Create PC labels
+    df_pc = pd.DataFrame({**{pc: x for x, pc in zip(pc_proj, pcs)}, "#SNP": cov})
+
+    ### Flag out Projections with too few SNPs    
     idx = df_pc["#SNP"]<min_snps # Set pcs of iids with to few SNPs to NAN
     df_pc.loc[idx,["pc1","pc2"]] = np.nan
 
